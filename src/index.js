@@ -12,22 +12,44 @@ import {
   li
 } from "./../modules/jzr/elements";
 
+const Message = component(
+  {},
+  {
+    onconnected() {
+      console.log("connected!");
+    },
+    ondisconnected() {
+      console.log("disconnected!");
+    },
+    onpropschange({ state }, changedProps) {
+      console.log("Props changed");
+      console.dir(changedProps);
+      return state;
+    }
+  },
+  props => p(props.message)
+);
+
 const Counter = component(
   { counter: 0 },
   {
     add: ({ state: { counter } }) => ({
       counter: counter + 1
+    }),
+    less: ({ state: { counter } }) => ({
+      counter: counter - 1
     })
   },
-  ({ max = 6 }, { counter }, { add }) =>
+  ({ max = 6 }, { counter }, { add, less }) =>
     section(
       jzr(() => {
         if (counter < max) {
           button({ onclick: add }, "Add");
         } else {
           p("Reached max " + max);
+          button({ onclick: less }, "Less");
         }
-        p("Value: " + counter);
+        Message({ message: "Value: " + counter });
       })
     )
 );
@@ -71,7 +93,7 @@ const ToDo = component(
     )
 );
 
-const App = component({}, ({ name }) => {
+const App = component(({ name }) => {
   return div(
     jzr(() => {
       h1("Hello " + name);
@@ -81,4 +103,4 @@ const App = component({}, ({ name }) => {
   );
 });
 
-render(App({ name: "Andres" }), document.getElementById("app"));
+render(App({ name: "Jazer" }), document.getElementById("app"));
