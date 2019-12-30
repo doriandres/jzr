@@ -1,8 +1,10 @@
 import { html, jzr, component } from "./index";
 
 export const goTo = (href) => {
-  history.pushState(null, null, href);
-  subscriptions.forEach(fn => fn());
+  if (window.location.pathname !== href) {
+    history.pushState(null, null, href);
+    subscriptions.forEach(fn => fn());
+  }
 };
 
 const subscriptions = new Set();
