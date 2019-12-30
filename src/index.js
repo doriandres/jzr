@@ -1,16 +1,6 @@
 import { component, jzr, render } from "./../modules/jzr";
-import {
-  section,
-  button,
-  p,
-  div,
-  form,
-  input,
-  span,
-  h1,
-  ul,
-  li
-} from "./../modules/jzr/elements";
+import { page, link } from "./../modules/jzr/page"
+import { section, button, p, div, form, input, span, h1, ul, li, nav } from "./../modules/jzr/elements";
 
 const Message = component(
   {},
@@ -27,7 +17,7 @@ const Message = component(
       return state;
     }
   },
-  props => p(props.message)
+  props => p(props.slot())
 );
 
 const Counter = component(
@@ -41,17 +31,15 @@ const Counter = component(
     })
   },
   ({ max = 6 }, { counter }, { add, less }) =>
-    section(
-      jzr(() => {
-        if (counter < max) {
-          button({ onclick: add }, "Add");
-        } else {
-          p("Reached max " + max);
-          button({ onclick: less }, "Less");
-        }
-        Message({ message: "Value: " + counter });
-      })
-    )
+    section(jzr(() => {
+      if (counter < max) {
+        button({ onclick: add }, "Add");
+      } else {
+        p("Reached max " + max);
+        button({ onclick: less }, "Less");
+      }
+      Message("Value: " + counter);
+    }))
 );
 
 const ToDo = component(
@@ -70,37 +58,37 @@ const ToDo = component(
     })
   },
   (_, { items }, { oninput, onsubmit, ondelete }) =>
-    section(
-      jzr(() => {
-        form(
-          { onsubmit },
-          jzr(() => {
-            input({ placeholder: "To do item", oninput });
-            button("Add item");
-          })
-        );
-        ul(() =>
-          items.map((item, index) =>
-            li(
-              jzr(() => {
-                span(item);
-                button({ onclick: () => ondelete(index) }, "delete");
-              })
-            )
-          )
-        );
-      })
-    )
+    section(jzr(() => {
+      form({ onsubmit }, jzr(() => {
+        input({ placeholder: "To do item", oninput });
+        button("Add item");
+      }));
+      ul(() => items.map((item, index) =>
+        li(jzr(() => {
+          span(item);
+          button({ onclick: () => ondelete(index) }, "delete");
+        }))
+      ));
+    }))
 );
 
-const App = component(({ name }) => {
-  return div(
-    jzr(() => {
-      h1("Hello " + name);
-      Counter();
-      ToDo();
-    })
-  );
-});
+const Navbar = component(() =>
+  nav(() => [
+    ul(jzr(() => {
+      li(() => [link({ href: '/' }, "Home")]);
+      li(() => [link({ href: '/counter' }, "Counter")]);
+      li(() => [link({ href: '/todo' }, "To Do")]);
+    }))
+  ])
+)
 
-render(App({ name: "Jazer" }), document.getElementById("app"));
+const App = component(({ name }) =>
+  div(jzr(() => {
+    Navbar();
+    page({ path: "/", title: "Home" }, () => h1("Hello " + name));
+    page({ path: "/counter", title: "Counter" }, () => Counter());
+    page({ path: "/todo", title: "To Do" }, () => ToDo());
+  }))
+);
+
+render(App({ name: "Jzr!" }), document.getElementById("app"));

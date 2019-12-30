@@ -43,7 +43,13 @@ const assignAndCompare = (host, existing, novo) => {
   return propsChanges;
 };
 
-const component = (defaultState, methods, fn) => (props = {}) => {
+const component = (defaultState, methods, fn) => (props = {}, children) => {
+  if (props instanceof Function || typeof props === "string") {
+    children = props;
+    props = { slot: children instanceof Function ? children : () => children };
+  } else if (typeof props === "object" && children) {
+    props = { ...props, slot: children instanceof Function ? children : () => children };
+  }
   if (defaultState instanceof Function) {
     fn = defaultState;
     methods = {};
@@ -147,8 +153,8 @@ const _html = (tag, props, content, parent, parentIndex, methods = {}) => {
     parent && parentIndex !== undefined && parent.children[parentIndex];
   const element =
     existingElement &&
-    existingElement.localName === tag &&
-    existingElement.___parentIndex === parentIndex
+      existingElement.localName === tag &&
+      existingElement.___parentIndex === parentIndex
       ? existingElement
       : document.createElement(tag);
 
